@@ -4,6 +4,13 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Financial Independence Calculator</title>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+            // Fallback CDN if primary fails
+            if (typeof Chart === 'undefined') {
+                document.write('<script 
+    src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"><\/script>');
+            }
+        </script>
         <style>
             body {
                 font-family: Arial, sans-serif;
@@ -627,17 +634,32 @@
                 <h3>Portfolio Value Over Time</h3>
                 <div class="chart-container">
                     <canvas id="portfolioChart"></canvas>
+                    <div id="portfolioChartError" style="display: none; text-align: center; 
+    color: #666; padding: 20px;">
+                        Charts unavailable on this device. Please view detailed data in the
+    table below.
+                    </div>
                 </div>
 
                 <h3>Annual Spending vs Withdrawal Capacity</h3>
                 <div class="chart-container">
                     <canvas id="spendingChart"></canvas>
+                    <div id="spendingChartError" style="display: none; text-align: center; 
+    color: #666; padding: 20px;">
+                        Charts unavailable on this device. Please view detailed data in the
+    table below.
+                    </div>
                 </div>
 
                 <div id="debtChartSection" style="display: none;">
                     <h3>Remaining Debt Balances</h3>
                     <div class="chart-container">
                         <canvas id="debtChart"></canvas>
+                        <div id="debtChartError" style="display: none; text-align: center; 
+    color: #666; padding: 20px;">
+                            Charts unavailable on this device. Please view detailed data in the
+     table below.
+                        </div>
                     </div>
                 </div>
 
@@ -980,9 +1002,36 @@
             }
 
             function createAllCharts() {
-                createPortfolioChart();
-                createSpendingChart();
-                createDebtChart();
+                // Check if Chart.js is available
+                if (typeof Chart === 'undefined') {
+                    console.warn('Chart.js not available - showing error messages');
+                    showChartErrors();
+                    return;
+                }
+
+                try {
+                    createPortfolioChart();
+                    createSpendingChart();
+                    createDebtChart();
+                } catch (error) {
+                    console.error('Chart creation failed:', error);
+                    showChartErrors();
+                }
+            }
+
+            function showChartErrors() {
+                // Hide canvas elements and show error messages
+                document.getElementById('portfolioChart').style.display = 'none';
+                document.getElementById('portfolioChartError').style.display = 'block';
+
+                document.getElementById('spendingChart').style.display = 'none';
+                document.getElementById('spendingChartError').style.display = 'block';
+
+                // Only show debt chart error if debt section is visible
+                if (document.getElementById('debtChartSection').style.display !== 'none') {
+                    document.getElementById('debtChart').style.display = 'none';
+                    document.getElementById('debtChartError').style.display = 'block';
+                }
             }
 
             function createPortfolioChart() {
@@ -1253,3 +1302,5 @@
         </script>
     </body>
     </html>
+
+
